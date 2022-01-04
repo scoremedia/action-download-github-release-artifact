@@ -19,7 +19,7 @@ inputs:
     description: The artifact to download
     required: true
   destination:
-    description: The destination path to download the artifact to. The final path will be ${{ destination }}/${{ artifact }}
+    description: The destination path to download the artifact to. The final path will be destination/artifact
     required: true
 
 outputs:
