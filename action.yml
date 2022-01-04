@@ -1,0 +1,55 @@
+name: 'Github Release Artifact Download'
+description: 'Downloads a release artifact from Github'
+
+inputs:
+  token:
+    description: Github personal access token with repo permissions
+    required: false
+    default: ${{ github.token }}
+  owner:
+    description: The owner of the repository
+    required: true
+  repo:
+    description: The repository name
+    required: true
+  tag:
+    description: The tag to download
+    required: true
+  artifact:
+    description: The artifact to download
+    required: true
+  destination:
+    description: The destination path to download the artifact to. The final path will be ${{ destination }}/${{ artifact }}
+    required: true
+
+outputs:
+  artifact_url:
+    description: The URL of the artifact
+    value: '{{ steps.download_artifact.outputs.artifact_url }}'
+
+runs:
+  using: composite
+  steps:
+    - id: download_artifact
+      run: |
+        owner="${{ inputs.owner }}"
+        repo="${{ inputs.repo }}"
+        tag="${{ inputs.tag }}"
+        artifact="${{ inputs.artifact }}"
+        token="${{ inputs.token }}"
+        output_path="${{ inputs.destination }}"
+        list_asset_url="https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}"
+
+        # get url for artifact with name==$artifact
+        asset_url=$(curl -H "Authorization: token ${token}" "${list_asset_url}" | jq ".assets[] | select(.name==\"${artifact}\") | .url" | sed 's/\"//g')
+
+        # download the artifact
+        curl -vLJO -H 'Accept: application/octet-stream' \
+          -H "Authorization: token ${token}" \
+          "${asset_url}?access_token=${token}"
+
+        mv "${artifact}" "${output_path}"
+
+        artifact_url="${output_path}/${artifact}"
+        echo "::set-output name=artifact_url::$artifact_url"
+      shell: bash
