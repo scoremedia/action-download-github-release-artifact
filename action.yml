@@ -48,6 +48,8 @@ runs:
           -H "Authorization: token ${token}" \
           "${asset_url}?access_token=${token}"
 
+        # make output directories
+        mkdir -p "${output_path}"
         mv "${artifact}" "${output_path}"
 
         artifact_url="${output_path}/${artifact}"
