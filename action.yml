@@ -53,5 +53,5 @@ runs:
         mv "${artifact}" "${output_path}"
 
         artifact_url="${output_path}/${artifact}"
-        echo "::set-output name=artifact_url::$artifact_url"
+        echo "artifact_url=$artifact_url" >> $GITHUB_OUTPUT
       shell: bash
